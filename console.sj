@@ -15,9 +15,9 @@ package console {
 
     readLine()'string { 
         data := nullptr
-        size := 1024
+        dataSize := 1024
         --c--
-        char* str = (char*)malloc(size);
+        char* str = (char*)malloc(console_datasize);
         int index = 0;
         char ch = ' ';
         do {
@@ -25,19 +25,17 @@ package console {
             if (ch != '\n') {
                 str[index] = ch;
                 index++;
-                if (index >= size) {
-                    size *= 2;
-                    str = (char*)realloc(str, size);
+                if (index >= console_datasize) {
+                    console_datasize *= 2;
+                    str = (char*)realloc(str, console_datasize);
                 }
             }
         } while (ch != '\n');
 
-        str[index] = 0;
-        index++;
-        data = (void*)str;
-        size = index;
+        console_data = (void*)str;
+        console_datasize = index;
         --c--
 
-        string(count := size - 1, data := array!char(dataSize := size, data := data, count := size))
+        string(count := dataSize, data := array!char(dataSize := dataSize, data := data, count := dataSize))
     }
 }
