@@ -121,7 +121,7 @@ hash![key, val] (
         newHash : hash![key, val]()
         --c--
         khash_t(#safeName(key)_#safeName(val)_hash_type)* p = (khash_t(#safeName(key)_#safeName(val)_hash_type)*)_parent->_hash;
-        khash_t(#safeName(key)_#safeName(val)_hash_type)* newP = (khash_t(#safeName(key)_#safeName(val)_hash_type)*)sjv_newHash->_hash;
+        khash_t(#safeName(key)_#safeName(val)_hash_type)* newP = (khash_t(#safeName(key)_#safeName(val)_hash_type)*)newHash->_hash;
         for (khiter_t k = kh_begin(p); k != kh_end(p); ++k) {
             if (kh_exist(p, k)) {
                 bool result;
@@ -147,7 +147,7 @@ hash![key, val] (
                     if (!ret) kh_del(#safeName(key)_#safeName(val)_hash_type, newP, k);
 
     ##if #isWeak(key)
-                    delete_cb cb = { sjv_newHash, (void(*)(void*, void*))#functionStack(parent, _weakPtrRemoveKey) };
+                    delete_cb cb = { newHash, (void(*)(void*, void*))#functionStack(parent, _weakPtrRemoveKey) };
                     weakptr_cb_add(#parent(key, kh_key(newP, k)), cb);
     ##else
                     #type(key) t;
@@ -155,7 +155,7 @@ hash![key, val] (
     ##endif
 
     ##if #isWeak(val)
-                    delete_cb cb = { sjv_newHash, (void(*)(void*, void*))#functionStack(parent, _weakPtrRemoveValue) };
+                    delete_cb cb = { newHash, (void(*)(void*, void*))#functionStack(parent, _weakPtrRemoveValue) };
                     weakptr_cb_add(#parent(val, kh_val(newP, k)), cb);
     ##else
                     #retain(val, kh_val(newP, k), kh_value(p, k));

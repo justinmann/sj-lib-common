@@ -14,7 +14,7 @@ i32_min(a : 'i32, b : 'i32)'i32 {
 i32_random()'i32 {
     x := 0
     --c--
-    sjv_x = rand();
+    x = rand();
     --c--
     x
 }
@@ -23,12 +23,12 @@ i32_asString(val : 'i32, base : 10) {
     count := 0
     data := nullptr
     --c--
-    sjv_data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
-    int* refcount = (int*)sjv_data - 1;
+    data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
+    int* refcount = (int*)data - 1;
     *refcount = 1;
 
-    char *tmp = (char*)sjv_data + 128;
-    char *tp = (char*)sjv_data + 128;
+    char *tmp = (char*)data + 128;
+    char *tp = (char*)data + 128;
     int i;
     unsigned v;
 
@@ -50,7 +50,7 @@ i32_asString(val : 'i32, base : 10) {
 
     int len = tp - tmp;
 
-    char* sp = (char*)sjv_data;
+    char* sp = (char*)data;
     if (sign) 
     {
         *sp++ = '-';
@@ -60,7 +60,7 @@ i32_asString(val : 'i32, base : 10) {
     while (tp > tmp)
         *sp++ = *--tp;
 
-    sjv_count = len;
+    count = len;
     --c--
     string(count := count, data := array!char(dataSize := 256, count := count, data := data))
 }
@@ -90,10 +90,10 @@ string_asI32(text : 'string)'i32 {
     int v = (int)strtol((char*)text->data.data, &e, 10);
     
     if (*e != '\0') {
-        sjv_x = 0;
+        x = 0;
     }
     else {
-        sjv_x = v;
+        x = v;
     }
     --c--
     x

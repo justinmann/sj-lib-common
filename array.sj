@@ -80,14 +80,14 @@ array!t (
     map!new_t(cb : '(:t)new_t)'array!new_t {
         newData := nullptr
         --c--
-        sjv_newdata = (int*)malloc(_parent->count * sizeof(#type(new_t)) + sizeof(int)) + 1;
-        int* refcount = (int*)sjv_newdata - 1;
+        newdata = (int*)malloc(_parent->count * sizeof(#type(new_t)) + sizeof(int)) + 1;
+        int* refcount = (int*)newdata - 1;
         *refcount = 1;
         --c--
         for i : 0 to count {
             newItem : cb(getAt(i))
             --c--
-            #type(new_t)* p = (#type(new_t)*)sjv_newdata;
+            #type(new_t)* p = (#type(new_t)*)newdata;
             #retain(new_t, p[i], newitem);
             --c--
         }       
@@ -98,16 +98,16 @@ array!t (
         newData := nullptr
         newCount := 0
         --c--
-        sjv_newdata = (int*)malloc(_parent->count * sizeof(#type(t)) + sizeof(int)) + 1;
-        int* refcount = (int*)sjv_newdata - 1;
+        newdata = (int*)malloc(_parent->count * sizeof(#type(t)) + sizeof(int)) + 1;
+        int* refcount = (int*)newdata - 1;
         *refcount = 1;
         --c--
         for i : 0 to count {
             item : getAt(i)
             if (cb(item)) {
                 --c--
-                #type(t)* p = (#type(t)*)sjv_newdata;
-                #retain(t, p[sjv_newcount], item);
+                #type(t)* p = (#type(t)*)newdata;
+                #retain(t, p[newcount], item);
                 --c--
                 newCount++
             }
@@ -139,8 +139,8 @@ array!t (
                 halt("grow: new size smaller than old _parent->datasize %d:%d\n", newsize, _parent->datasize);
             }
             
-            sjv_newdata = (int*)(malloc(sizeof(int) + newsize * sizeof(#type(t)))) + 1;
-            int* refcount = (int*)sjv_newdata - 1;
+            newdata = (int*)(malloc(sizeof(int) + newsize * sizeof(#type(t)))) + 1;
+            int* refcount = (int*)newdata - 1;
             *refcount = 1;
 
             if (!_parent->data) {
@@ -148,7 +148,7 @@ array!t (
             }
 
             #type(t)* p = (#type(t)*)_parent->data;
-            #type(t)* newp = (#type(t)*)sjv_newdata;
+            #type(t)* newp = (#type(t)*)newdata;
 
             int count = _parent->count;
 
@@ -201,18 +201,18 @@ array!t (
 
         pivot : getAt((left + right) / 2)
         while i <= j {
-            continue := true
-            while i < count && continue {
-                continue = cb(getAt(i), pivot) < 0
-                if continue {
+            shouldContinue := true
+            while i < count && shouldContinue {
+                shouldContinue = cb(getAt(i), pivot) < 0
+                if shouldContinue {
                     i++
                 }
             }
 
-            continue = true
-            while j >= 0 && continue {
-                continue = cb(getAt(j), pivot) > 0
-                if continue {
+            shouldContinue = true
+            while j >= 0 && shouldContinue {
+                shouldContinue = cb(getAt(j), pivot) > 0
+                if shouldContinue {
                     j--
                 }
             }

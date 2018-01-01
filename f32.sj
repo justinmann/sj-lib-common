@@ -3,7 +3,7 @@ f32_pi : 3.14159265358979323846f
 f32_sqrt(v : 'f32)'f32 {
     result := 0.0f
     --c--
-    sjv_result = sqrtf(v);
+    result = sqrtf(v);
     --c--
     result
 }
@@ -11,7 +11,7 @@ f32_sqrt(v : 'f32)'f32 {
 f32_cos(v : 'f32)'f32 {
     result := 0.0f
     --c--
-    sjv_result = cosf(v);
+    result = cosf(v);
     --c--
     result
 }
@@ -19,7 +19,7 @@ f32_cos(v : 'f32)'f32 {
 f32_sin(v : 'f32)'f32 {
     result := 0.0f
     --c--
-    sjv_result = sinf(v);
+    result = sinf(v);
     --c--
     result
 }
@@ -27,7 +27,7 @@ f32_sin(v : 'f32)'f32 {
 f32_tan(v : 'f32)'f32 {
     result := 0.0f
     --c--
-    sjv_result = tanf(v);
+    result = tanf(v);
     --c--
     result
 }
@@ -35,7 +35,7 @@ f32_tan(v : 'f32)'f32 {
 f32_atan2(y : 'f32, x : 'f32)'f32 {
     result := 0.0f
     --c--
-    sjv_result = atan2f(y, x);
+    result = atan2f(y, x);
     --c--
     result
 }
@@ -51,7 +51,7 @@ f32_min(a : 'f32, b : 'f32)'f32 {
 f32_random()'f32 {
     x := 0.0f
     --c--
-    sjv_x = (float)rand() / (float)RAND_MAX;
+    x = (float)rand() / (float)RAND_MAX;
     --c--
     x
 }
@@ -59,7 +59,7 @@ f32_random()'f32 {
 f32_ceil(v : 'f32)'f32 {
     x := 0.0f
     --c--
-    sjv_x = ceilf(v);
+    x = ceilf(v);
     --c--
     x
 }
@@ -67,7 +67,7 @@ f32_ceil(v : 'f32)'f32 {
 f32_floor(v : 'f32)'f32 {
     x := 0.0f
     --c--
-    sjv_x = floorf(v);
+    x = floorf(v);
     --c--
     x
 }
@@ -94,11 +94,11 @@ f32_asString(val : 'f32) {
     count := 0
     data := nullptr
     --c--
-    sjv_data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
-    int* refcount = (int*)sjv_data - 1;
+    data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
+    int* refcount = (int*)data - 1;
     *refcount = 1;
-    snprintf((char*)sjv_data, 256, "%f", val);
-    sjv_count = (int)strlen((char*)sjv_data);
+    snprintf((char*)data, 256, "%f", val);
+    count = (int)strlen((char*)data);
     --c--
     string(count := count, data := array!char(dataSize := count, count := count, data := data))
 }
@@ -107,7 +107,7 @@ f32_hash(val : 'f32)'u32 {
     result := 0u
     --c--
     int32_t* p = (int32_t*)&val;
-    sjv_result = *p;
+    result = *p;
     --c--
     result
 }
