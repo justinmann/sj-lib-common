@@ -1,9 +1,9 @@
 --cinclude--
-##include <lib/common/common.h>
+##include <lib/sj-lib-common/common.h>
 --cinclude--
 
 --cfunction--
-##include <lib/common/common.c>
+##include <lib/sj-lib-common/common.c>
 --cfunction--
 
 

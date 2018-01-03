@@ -35,7 +35,7 @@
 #ifdef __WINDOWS__
 #include <windows.h>
 #endif
-#include <lib/common/khash.h>
+#include <lib/sj-lib-common/khash.h>
 
 typedef struct td_delete_cb delete_cb;
 typedef struct td_delete_cb_list delete_cb_list;
