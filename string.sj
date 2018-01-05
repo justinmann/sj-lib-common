@@ -70,7 +70,7 @@ string(
     }
 
     nullTerminate() {
-        if !data.isGlobal || !_isNullTerminated {
+        if !data.isGlobal && !_isNullTerminated {
             if count + 1 > data.dataSize {
                 data = data.grow(count + 1)
             }
