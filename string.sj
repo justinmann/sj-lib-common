@@ -1,6 +1,6 @@
 emptyStringData := nullptr
 --c--
-g_emptystringdata = "";
+g_emptystringdata = (void*)"";
 --c--
 
 string(

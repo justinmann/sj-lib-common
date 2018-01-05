@@ -142,7 +142,7 @@ void weakptr_clear(void* parent, void* v);
 void ptr_init();
 void ptr_retain(void* ptr);
 bool ptr_release(void* ptr);
-void _object_init(sjs_object* obj, int typeid, char* funcname);
+void _object_init(sjs_object* obj, int typenum, char* funcname);
 void _object_retain(sjs_object* obj, char* funcname);
 void _object_release(sjs_object* obj, char* funcname);
 void _object_report(void);

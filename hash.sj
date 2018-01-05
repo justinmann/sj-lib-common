@@ -51,9 +51,9 @@ hash![key, val] (
 
         int ret;
     ##if #isStack(key)
-        k = kh_put(#safeName(key)_#safeName(val)_hash_type, _parent->_hash, *key, &ret);
+        k = kh_put(#safeName(key)_#safeName(val)_hash_type, p, *key, &ret);
     ##else
-        k = kh_put(#safeName(key)_#safeName(val)_hash_type, _parent->_hash, key, &ret);
+        k = kh_put(#safeName(key)_#safeName(val)_hash_type, p, key, &ret);
     ##endif
 
         if (!ret) kh_del(#safeName(key)_#safeName(val)_hash_type, p, k);
@@ -254,7 +254,7 @@ hash![key, val] (
     ##endif
             }
         }
-        kh_destroy(#safeName(key)_#safeName(val)_hash_type, _this->_hash);
+        kh_destroy(#safeName(key)_#safeName(val)_hash_type, (khash_t(#safeName(key)_#safeName(val)_hash_type)*)_this->_hash);
     }
     --c--
 }

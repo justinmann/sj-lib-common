@@ -171,7 +171,7 @@ void weakptr_clear(void* parent, void* v) {
 }
 
 typedef struct {
-	int typeid;
+	int typenum;
 	char** retain_func_names;
 	int retain_func_names_count;
 	int retain_func_names_size;
@@ -188,7 +188,7 @@ void _object_start() {
     _object_hashtable = kh_init(_object_hashtable_type);
 }
 
-void _object_init(sjs_object* obj, int typeid, char* funcname) {
+void _object_init(sjs_object* obj, int typenum, char* funcname) {
 	// debugout("_object_init %d %0x %s\n", typeid, obj, funcname);
 
     khiter_t k = kh_get(_object_hashtable_type, _object_hashtable, obj);
@@ -199,13 +199,13 @@ void _object_init(sjs_object* obj, int typeid, char* funcname) {
     int ret;
     k = kh_put(_object_hashtable_type, _object_hashtable, obj, &ret);
     if (!ret) kh_del(_object_hashtable_type, _object_hashtable, k);
-    kh_value(_object_hashtable, k).typeid = typeid;
+    kh_value(_object_hashtable, k).typenum = typenum;
     kh_value(_object_hashtable, k).retain_func_names_size = 10;
-    kh_value(_object_hashtable, k).retain_func_names = malloc(sizeof(char*) * kh_value(_object_hashtable, k).retain_func_names_size);
+    kh_value(_object_hashtable, k).retain_func_names = (char**)malloc(sizeof(char*) * kh_value(_object_hashtable, k).retain_func_names_size);
     kh_value(_object_hashtable, k).retain_func_names[0] = funcname;
     kh_value(_object_hashtable, k).retain_func_names_count = 1;
     kh_value(_object_hashtable, k).release_func_names_size = 10;
-    kh_value(_object_hashtable, k).release_func_names = malloc(sizeof(char*) * kh_value(_object_hashtable, k).release_func_names_size);
+    kh_value(_object_hashtable, k).release_func_names = (char**)malloc(sizeof(char*) * kh_value(_object_hashtable, k).release_func_names_size);
     kh_value(_object_hashtable, k).release_func_names_count = 0;
 }
 
@@ -220,7 +220,7 @@ void _object_retain(sjs_object* obj, char* funcname) {
     kh_value(_object_hashtable, k).retain_func_names_count++;
     if (kh_value(_object_hashtable, k).retain_func_names_count >= kh_value(_object_hashtable, k).retain_func_names_size) {
     	kh_value(_object_hashtable, k).retain_func_names_size += 100;
-	    kh_value(_object_hashtable, k).retain_func_names = realloc(
+	    kh_value(_object_hashtable, k).retain_func_names = (char**)realloc(
             kh_value(_object_hashtable, k).retain_func_names, 
             sizeof(char*) * kh_value(_object_hashtable, k).retain_func_names_size);
     }
@@ -241,7 +241,7 @@ void _object_release(sjs_object* obj, char* funcname) {
     kh_value(_object_hashtable, k).release_func_names_count++;
     if (kh_value(_object_hashtable, k).release_func_names_count >= kh_value(_object_hashtable, k).release_func_names_size) {
     	kh_value(_object_hashtable, k).release_func_names_size += 100;
-	    kh_value(_object_hashtable, k).release_func_names = realloc(
+	    kh_value(_object_hashtable, k).release_func_names = (char**)realloc(
             kh_value(_object_hashtable, k).release_func_names, 
             sizeof(char*) * kh_value(_object_hashtable, k).release_func_names_size);
     }
@@ -262,7 +262,7 @@ void _object_report() {
 
     for (khiter_t k = kh_begin(_object_hashtable); k != kh_end(_object_hashtable); ++k) {
         if (kh_exist(_object_hashtable, k)) {
-        	debugout("%0x typeid: %d refcount: %d\n", kh_key(_object_hashtable, k), kh_value(_object_hashtable, k).typeid, kh_key(_object_hashtable, k)->_refCount);
+        	debugout("%0x typeid: %d refcount: %d\n", kh_key(_object_hashtable, k), kh_value(_object_hashtable, k).typenum, kh_key(_object_hashtable, k)->_refCount);
 
             for (int i = 0; i < kh_value(_object_hashtable, k).retain_func_names_count; i++) {
 	        	debugout("\tretain: %s\n", kh_value(_object_hashtable, k).retain_func_names[i]);

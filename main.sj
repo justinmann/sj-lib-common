@@ -3,7 +3,7 @@
 --cinclude--
 
 --cfunction--
-##include <lib/sj-lib-common/common.c>
+##include <lib/sj-lib-common/common.cpp>
 --cfunction--
 
 
