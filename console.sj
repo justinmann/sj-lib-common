@@ -17,7 +17,7 @@ package console {
         data := nullptr
         dataSize := 1024
         --c--
-        char* str = (char*)malloc(console_datasize);
+        char* str = (char*)malloc(datasize);
         int index = 0;
         char ch = ' ';
         do {
@@ -25,15 +25,15 @@ package console {
             if (ch != '\n') {
                 str[index] = ch;
                 index++;
-                if (index >= console_datasize) {
-                    console_datasize *= 2;
-                    str = (char*)realloc(str, console_datasize);
+                if (index >= datasize) {
+                    datasize *= 2;
+                    str = (char*)realloc(str, datasize);
                 }
             }
         } while (ch != '\n');
 
-        console_data = (void*)str;
-        console_datasize = index;
+        data = (void*)str;
+        datasize = index;
         --c--
 
         string(count := dataSize, data := array!char(dataSize := dataSize, data := data, count := dataSize))
