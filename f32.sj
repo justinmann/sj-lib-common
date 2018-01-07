@@ -103,6 +103,22 @@ f32_asString(val : 'f32) {
     string(count := count, data := array!char(dataSize := count, count := count, data := data))
 }
 
+string_asF32(text : 'string) {
+    x := 0.0f
+    --c--
+    char* e;
+    float v = strtof((char*)text->data.data, &e);
+    
+    if (*e != '\0') {
+        x = 0.0f;
+    }
+    else {
+        x = v;
+    }
+    --c--
+    x
+}
+
 f32_hash(val : 'f32)'u32 {
     result := 0u
     --c--
