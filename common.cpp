@@ -1,3 +1,11 @@
+sjs_array* createarray(int size) {
+    sjs_array* arr = (sjs_array*)malloc(sizeof(sjs_array) + size);
+    arr->refcount = 0;
+    arr->count = 0;
+    arr->size = size;
+    return arr;
+}
+
 void halt(const char * format, ...) {
     va_list args;
     va_start(args, format);

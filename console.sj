@@ -2,14 +2,14 @@ package console {
     write(data : 'string)'void {
         data.nullTerminate()
         --c--
-        printf("%s", (char*)data->data.data);
+        printf("%s", string_char(data));
         --c--
     }
 
     writeLine(data : 'string)'void {
         data.nullTerminate()
         --c--
-        printf("%s\n", (char*)data->data.data);
+        printf("%s\n", string_char(data));
         --c--
     }
 
@@ -39,3 +39,12 @@ package console {
         string(count := dataSize, data := array!char(dataSize := dataSize, data := data, count := dataSize))
     }
 }
+
+consoleWriter #writer(
+    write(s : 'string) {
+        console.write(s)
+        void
+    }
+
+    reset() { void }
+) { this }

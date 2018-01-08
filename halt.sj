@@ -1,6 +1,5 @@
 halt(reason : 'string) {
-    reason.nullTerminate()
     --c--
-    halt("%s\n", (char*)reason->data.data);
+    halt("%s\n", string_char(reason));
     --c--
 }
