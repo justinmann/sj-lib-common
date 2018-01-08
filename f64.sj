@@ -15,7 +15,7 @@ string_asF64(text : 'string) {
     x := 0.0
     --c--
     char* e;
-    double v = strtod((char*)text->data.data, &e);
+    double v = strtod(string_char(text), &e);
     
     if (*e != '\0') {
         x = 0.0f;

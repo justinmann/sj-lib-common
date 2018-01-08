@@ -86,7 +86,7 @@ string_asI32(text : 'string)'i32 {
     x := 0
     --c--
     char* e;
-    int v = (int)strtol((char*)text->data.data, &e, 10);
+    int v = (int)strtol(string_char(text), &e, 10);
     
     if (*e != '\0') {
         x = 0;

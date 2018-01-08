@@ -117,7 +117,12 @@ string(
     }
     
     toUpperCase()'string {
-        a : array!char(datasize : ((count - 1) / 256 + 1) * 256)
+        v := nullptr
+        --c--
+        sjs_array* arr = createarray(((_parent->count - 1) / 256 + 1) * 256);
+        v = arr;
+        --c--
+        a : array!char(v)
         for i : 0 to count {
             a.initAt(i, data[i].toUpperCase())
         }

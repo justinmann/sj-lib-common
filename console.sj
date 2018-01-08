@@ -15,28 +15,27 @@ package console {
 
     readLine()'string { 
         data := nullptr
-        dataSize := 1024
+        count := 0
         --c--
-        char* str = (char*)malloc(datasize);
+        sjs_array* str = createarray(1024);
         int index = 0;
         char ch = ' ';
         do {
             ch = getchar();
             if (ch != '\n') {
-                str[index] = ch;
+                str->data[index] = ch;
                 index++;
-                if (index >= datasize) {
-                    datasize *= 2;
-                    str = (char*)realloc(str, datasize);
+                if (index >= str->size) {
+                    str = reallocarray(str, str->size * 2);
                 }
             }
         } while (ch != '\n');
 
         data = (void*)str;
-        datasize = index;
+        count = index;
         --c--
 
-        string(count := dataSize, data := array!char(dataSize := dataSize, data := data, count := dataSize))
+        string(count : count, data : array!char(data))
     }
 }
 

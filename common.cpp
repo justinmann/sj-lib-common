@@ -6,6 +6,11 @@ sjs_array* createarray(int size) {
     return arr;
 }
 
+sjs_array* reallocarray(sjs_array* arr, int size) {
+    sjs_array* arr2 = (sjs_array*)realloc(arr, sizeof(sjs_array) + size);
+    return arr2;
+}
+
 void halt(const char * format, ...) {
     va_list args;
     va_start(args, format);

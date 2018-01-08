@@ -127,24 +127,22 @@ array!t (
 
     filter(cb : '(:t)bool)'array!t {
         newData := nullptr
-        newCount := 0
         --c--
         sjs_array* arr = (sjs_array*)_parent->v;
-        newdata = (int*)malloc(_parent->count * sizeof(#type(t)) + sizeof(int)) + 1;
-        int* refcount = (int*)newdata - 1;
-        *refcount = 1;
+        sjs_array* newArr = createarray(arr->count * sizeof(#type(t)));
+        newdata = (void*)newArr;
         --c--
         for i : 0 to getCount() {
             item : getAt(i)
             if (cb(item)) {
                 --c--
-                #type(t)* p = (#type(t)*)newdata;
-                #retain(t, p[newcount], item);
+                #type(t)* p = (#type(t)*)newArr->data;
+                #retain(t, p[newArr->count], item);
+                newArr->count++;
                 --c--
-                newCount++
             }
         }       
-        array!t(data: newData, dataSize: count, count: newCount)
+        array!t(newData)
     }
 
     foldl!result(initial : 'result, cb : '(:result, :t)result)'result {
@@ -296,10 +294,7 @@ array!t (
             if i != 0 {
                 result = result + sep
             }
-
-            // console.writeLine(result)
-
-            result = result + getAt(i).asString()
+            result = result + getAt(i)?.asString()??
         }
         result
     }

@@ -107,7 +107,7 @@ string_asF32(text : 'string) {
     x := 0.0f
     --c--
     char* e;
-    float v = strtof((char*)text->data.data, &e);
+    float v = strtof(string_char(text), &e);
     
     if (*e != '\0') {
         x = 0.0f;
