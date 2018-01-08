@@ -15,7 +15,12 @@ package array {
 }
 
 --cstruct--
-sjs_array g_empty = { 1, 1, 0, "" };
+struct {
+    int refcount;
+    int size;
+    int count;
+    char data[1];
+} g_empty = { 1, 1, 0, "" };
 --cstruct--
 
 array!t (
