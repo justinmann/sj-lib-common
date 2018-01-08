@@ -91,16 +91,16 @@ f32_exp(v : 'f32)'f32 {
 }
 
 f32_asString(val : 'f32) {
+    v := nullptr
     count := 0
-    data := nullptr
     --c--
-    data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
-    int* refcount = (int*)data - 1;
-    *refcount = 1;
-    snprintf((char*)data, 256, "%f", val);
-    count = (int)strlen((char*)data);
+    sjs_array* arr = createarray(256);
+    snprintf(arr->data, 256, "%f", val);
+    arr->count = (int)strlen(arr->data);
+    count = arr->count;
+    v = arr;
     --c--
-    string(count := count, data := array!char(dataSize := count, count := count, data := data))
+    string(count : count, data := array!char(v))
 }
 
 string_asF32(text : 'string) {
