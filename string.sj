@@ -145,7 +145,7 @@ string(
 
     hash()'u32 {
         --c--
-        #return(u32, kh_str_hash_func(((sjs_array*)_parent->data.v)->data + _parent->offset, _parent->count);
+        #return(u32, kh_str_hash_func(((sjs_array*)_parent->data.v)->data + _parent->offset, _parent->count));
         --c--
     }
 ) { this }
