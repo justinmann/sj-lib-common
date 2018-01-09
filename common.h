@@ -133,8 +133,8 @@ struct td_sjs_interface {
     void* _vtbl;
 };
 
-sjs_array* createarray(int size);
-sjs_array* reallocarray(sjs_array* arr, int size);
+sjs_array* createarray(int elementSize, int size);
+sjs_array* reallocarray(sjs_array* arr, int elementSize, int size);
 void halt(const char * format, ...);
 void debugout(const char * format, ...);
 void debugoutv(const char * format, va_list args);

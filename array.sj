@@ -2,7 +2,7 @@ package array {
     create!t(size : 'i32, item : 't) {
         v := nullptr
         --c--
-        sjs_array* arr = createarray(sizeof(#type(t)) * size);
+        sjs_array* arr = createarray(sizeof(#type(t)), size);
         #type(t)* p = (#type(t)*)arr->data;
         for (int i = 0; i < size; i++) {
             #retain(t, p[i], item);
@@ -19,8 +19,8 @@ struct {
     int refcount;
     int size;
     int count;
-    char data[1];
-} g_empty = { 1, 1, 0, "" };
+    char data[0];
+} g_empty = { 1, 0, 0 };
 --cstruct--
 
 array!t (
@@ -32,7 +32,7 @@ array!t (
         --c--        
     }
 
-    getSize() {
+    getTotalCount()'i32 {
         --c--
         #return(i32, ((sjs_array*)_parent->v)->size);
         --c--
@@ -116,7 +116,7 @@ array!t (
         newData := nullptr
         --c--
         sjs_array* arr = (sjs_array*)_parent->v;
-        sjs_array* newArr = createarray(sizeof(#type(new_t)) * arr->count);
+        sjs_array* newArr = createarray(sizeof(#type(new_t)), arr->count);
         newArr->count = arr->count;
         newdata = (void*)newArr;
         --c--
@@ -134,7 +134,7 @@ array!t (
         newData := nullptr
         --c--
         sjs_array* arr = (sjs_array*)_parent->v;
-        sjs_array* newArr = createarray(arr->count * sizeof(#type(t)));
+        sjs_array* newArr = createarray(sizeof(#type(t)), arr->count);
         newdata = (void*)newArr;
         --c--
         for i : 0 to getCount() {
@@ -178,7 +178,7 @@ array!t (
             halt("grow: new count larger than old count %d:%d\n", count, arr->count - offset);
         }
         
-        sjs_array* newArr = createarray(newsize * sizeof(#type(t)));
+        sjs_array* newArr = createarray(sizeof(#type(t)), newsize);
         if (!newArr) {
             halt("grow: out of memory\n");
         }

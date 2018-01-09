@@ -94,7 +94,7 @@ f32_asString(val : 'f32) {
     v := nullptr
     count := 0
     --c--
-    sjs_array* arr = createarray(256);
+    sjs_array* arr = createarray(1, 256);
     snprintf(arr->data, 256, "%f", val);
     arr->count = (int)strlen(arr->data);
     count = arr->count;

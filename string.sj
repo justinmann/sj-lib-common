@@ -21,7 +21,7 @@ string(
         } else {
             // If there is room to add the string and this string is at the end of the array
             // then it is safe to re-use existing array
-            if offset + count + item.count < data.size && offset + count == data.count {
+            if offset + count + item.count < data.totalCount && offset + count == data.count {
                 newCount := count
 
                 for i : 0 to item.count {
@@ -119,7 +119,7 @@ string(
     toUpperCase()'string {
         v := nullptr
         --c--
-        sjs_array* arr = createarray(((_parent->count - 1) / 256 + 1) * 256);
+        sjs_array* arr = createarray(1, ((_parent->count - 1) / 256 + 1) * 256);
         v = arr;
         --c--
         a : array!char(v)
@@ -131,7 +131,7 @@ string(
 
     nullTerminate() {
         if !_isNullTerminated {
-            if count + 1 > data.size {
+            if count + 1 > data.totalCount {
                 data = data.clone(offset, count, count + 1)
                 offset = 0
             }

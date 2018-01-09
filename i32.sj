@@ -23,7 +23,7 @@ i32_asString(val : 'i32, base : 10) {
     count := 0
     vresult := nullptr
     --c--
-    sjs_array* arr = createarray(256);
+    sjs_array* arr = createarray(1, 256);
     vresult = (void*)arr;
     char *tmp = (char*)arr->data + 128;
     char *tp = (char*)arr->data + 128;

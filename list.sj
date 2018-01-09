@@ -42,8 +42,8 @@ list!t(
     }
     
     add(item :'t) {
-        if arr.count == arr.size {
-            arr = arr.clone(0, arr.count, 10.max(arr.size * 2))
+        if arr.count == arr.totalCount {
+            arr = arr.clone(0, arr.count, 10.max(arr.totalCount * 2))
             void
         }
 

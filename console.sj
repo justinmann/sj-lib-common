@@ -17,7 +17,7 @@ package console {
         data := nullptr
         count := 0
         --c--
-        sjs_array* str = createarray(1024);
+        sjs_array* str = createarray(1, 1024);
         int index = 0;
         char ch = ' ';
         do {

@@ -34,7 +34,7 @@ string_escapeHtml(s : 'string) {
         dataInCurrent++;
     }
 
-    sjs_array* arrOut = createarray(outSize);
+    sjs_array* arrOut = createarray(1, outSize);
     char* dataOut = arrOut->data;
     vresult = (void*)arrOut;
     arrOut->count = outSize;
