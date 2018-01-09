@@ -26,7 +26,7 @@ package console {
                 str->data[index] = ch;
                 index++;
                 if (index >= str->size) {
-                    str = reallocarray(str, str->size * 2);
+                    str = reallocarray(str, 1, str->size * 2);
                 }
             }
         } while (ch != '\n');
