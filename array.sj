@@ -98,12 +98,11 @@ array!t (
             i++
         }
 
-        // if i < getCount() {
-        //     optionalCopy valid(getAt(i))
-        // } else {
-        //     empty't
-        // }
-        empty't
+        if i < getCount() {
+            valid(getAt(i))
+        } else {
+            empty't
+        }
     }
 
     each(cb : '(:t)void)'void {
