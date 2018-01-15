@@ -167,6 +167,14 @@ hash![key, val] (
         newHash
     }
 
+    asArray!item(cb : '(:key,:val)item) {
+        result : list!item()
+        each(^{
+            result.add(cb(_1, _2))
+        })
+        result.arr
+    }
+
     foldl!result(initial : 'result, cb : '(:result,:key,:val)result)'result {
         r := initial
         for i : 0 to count {
