@@ -303,6 +303,15 @@ array!t (
         result
     }
 
+    asHash![key, value](cb : '(:t)tuple2![key,value]) {
+        hash : hash![key, value]()
+        for i : 0 to getCount() {
+            tuple : cb(getAt(i))
+            hash[tuple.item1] = tuple.item2
+        }        
+        hash
+    }
+
     isEqual(test :' array!t)'bool {
         --c--
         sjs_array* arr1 = (sjs_array*)_parent->v;

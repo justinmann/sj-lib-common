@@ -5,7 +5,7 @@ char* string_char(sjs_string* str);
 --cfunction--
 char* string_char(sjs_string* str) {
     #functionStack(string, nullterminate)(str);
-    return ((sjs_array*)str->data.v)->data;
+    return ((sjs_array*)str->data.v)->data + str->offset;
 }
 --cfunction--
 
@@ -131,12 +131,12 @@ string(
 
     nullTerminate() {
         if !_isNullTerminated {
-            if count + 1 > data.totalCount {
+            if offset + count + 1 > data.totalCount {
                 data = data.clone(offset, count, count + 1)
                 offset = 0
             }
             --c--
-            ((sjs_array*)_parent->data.v)->data[_parent->count] = 0;
+            ((sjs_array*)_parent->data.v)->data[_parent->offset + _parent->count] = 0;
             --c--
             _isNullTerminated = true
         }
@@ -147,6 +147,75 @@ string(
         --c--
         #return(u32, kh_str_hash_func(((sjs_array*)_parent->data.v)->data + _parent->offset, _parent->count));
         --c--
+    }
+
+    trim()'string {
+        start := 0
+        ch := getAt(start)
+        while start < count && (ch == '\r' || ch == '\n' || ch == '\t' || ch == ' ') {
+            start++
+            ch = getAt(start)
+        }
+
+        end := count - 1
+        ch = getAt(end)
+        while end >= start && (ch == '\r' || ch == '\n' || ch == '\t' || ch == ' ') {
+            end--
+            ch = getAt(end)
+        }
+
+        substr(start, end - start + 1)
+    }
+
+    split(seperator : 'string)'array!string {
+        l : list!string()
+        sepIndex := 0
+        lastIndex := 0
+        for i : 0 to count {
+            if getAt(i) == seperator[sepIndex] {
+                sepIndex++
+                if sepIndex == seperator.count {
+                    t : substr(lastIndex, i - sepIndex - lastIndex + 1)
+                    l.add(t)
+                    lastIndex = i + 1
+                    sepIndex = 0
+                }
+            } else {
+                sepIndex = 0
+            }
+        }
+
+        t2 : substr(lastIndex, count - lastIndex)
+        l.add(t2)
+
+        l.arr
+    }
+
+    indexOf(test : 'string) {
+        i := 0
+        j := 0
+        matchIndex := -1
+        while matchIndex == -1 && i < count {
+            if getAt(i) == test[j] {
+                j++
+                if j == test.count {
+                    matchIndex = i - j + 1
+                }
+            } else {
+                j = 0
+            }
+            i++
+        }
+        matchIndex
+    }
+
+    divide(seperator : 'string)'tuple2![string, string] {
+        match : indexOf(seperator)
+        if match == -1 {
+            (substr(0, count), "")
+        } else {
+            (substr(0, match), substr(match + seperator.count, count - match - seperator.count))
+        }
     }
 ) { this }
 
