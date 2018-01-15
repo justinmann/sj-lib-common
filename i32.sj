@@ -21,14 +21,12 @@ i32_random()'i32 {
 
 i32_asString(val : 'i32, base : 10) {
     count := 0
-    data := nullptr
+    vresult := nullptr
     --c--
-    data = (int*)malloc(sizeof(int) + sizeof(char) * 256) + 1;
-    int* refcount = (int*)data - 1;
-    *refcount = 1;
-
-    char *tmp = (char*)data + 128;
-    char *tp = (char*)data + 128;
+    sjs_array* arr = createarray(1, 256);
+    vresult = (void*)arr;
+    char *tmp = (char*)arr->data + 128;
+    char *tp = (char*)arr->data + 128;
     int i;
     unsigned v;
 
@@ -50,7 +48,7 @@ i32_asString(val : 'i32, base : 10) {
 
     int len = tp - tmp;
 
-    char* sp = (char*)data;
+    char* sp = (char*)arr->data;
     if (sign) 
     {
         *sp++ = '-';
@@ -60,9 +58,10 @@ i32_asString(val : 'i32, base : 10) {
     while (tp > tmp)
         *sp++ = *--tp;
 
+    arr->count = len;
     count = len;
     --c--
-    string(count := count, data := array!char(dataSize := 256, count := count, data := data))
+    string(count := count, data := array!char(vresult))
 }
 
 i32_compare(l : 'i32, r : 'i32) {
@@ -87,7 +86,7 @@ string_asI32(text : 'string)'i32 {
     x := 0
     --c--
     char* e;
-    int v = (int)strtol((char*)text->data.data, &e, 10);
+    int v = (int)strtol(string_char(text), &e, 10);
     
     if (*e != '\0') {
         x = 0;

@@ -37,6 +37,7 @@
 #endif
 #include <lib/sj-lib-common/khash.h>
 
+typedef struct td_sjs_array sjs_array;
 typedef struct td_delete_cb delete_cb;
 typedef struct td_delete_cb_list delete_cb_list;
 typedef struct td_bool_option bool_option;
@@ -50,6 +51,13 @@ typedef struct td_void_option void_option;
 typedef struct td_char_option char_option;
 typedef struct td_float_option float_option;
 typedef struct td_double_option double_option;
+
+struct td_sjs_array {
+    int refcount;
+    int size;
+    int count;
+    char data[];
+};
 
 struct td_delete_cb {
     void* _parent;
@@ -125,6 +133,8 @@ struct td_sjs_interface {
     void* _vtbl;
 };
 
+sjs_array* createarray(int elementSize, int size);
+sjs_array* reallocarray(sjs_array* arr, int elementSize, int size);
 void halt(const char * format, ...);
 void debugout(const char * format, ...);
 void debugoutv(const char * format, va_list args);

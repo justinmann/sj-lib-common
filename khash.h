@@ -452,13 +452,14 @@ static const double __ac_HASH_UPPER = 0.77;
 #define kh_int_hash_equal(a, b) (a == b)
 #define kh_int64_hash_func(key) (uint32_t)((key)>>33^(key)^(key)<<11)
 #define kh_int64_hash_equal(a, b) (a == b)
-static inline khint_t __ac_X31_hash_string(const char *s)
+static inline khint_t __ac_X31_hash_string(const char *s, int count)
 {
+    const char* e = s + count;
     khint_t h = *s;
-    if (h) for (++s; *s; ++s) h = (h << 5) - h + *s;
+    if (h) for (++s; s < e; ++s) h = (h << 5) - h + *s;
     return h;
 }
-#define kh_str_hash_func(key) __ac_X31_hash_string(key)
+#define kh_str_hash_func(key, count) __ac_X31_hash_string(key, count)
 #define kh_str_hash_equal(a, b) (strcmp(a, b) == 0)
 
 /* --- END OF HASH FUNCTIONS --- */
@@ -483,26 +484,5 @@ static inline khint_t __ac_X31_hash_string(const char *s)
 #define kh_end(h) ((h)->n_buckets)
 #define kh_size(h) ((h)->size)
 #define kh_n_buckets(h) ((h)->n_buckets)
-
-/* More conenient interfaces */
-
-#define KHASH_SET_INIT_INT(name)                                        \
-    KHASH_INIT(name, uint32_t, char, 0, kh_int_hash_func, kh_int_hash_equal)
-
-#define KHASH_MAP_INIT_INT(name, khval_t)                               \
-    KHASH_INIT(name, uint32_t, khval_t, 1, kh_int_hash_func, kh_int_hash_equal)
-
-#define KHASH_SET_INIT_INT64(name)                                      \
-    KHASH_INIT(name, uint64_t, char, 0, kh_int64_hash_func, kh_int64_hash_equal)
-
-#define KHASH_MAP_INIT_INT64(name, khval_t)                             \
-    KHASH_INIT(name, uint64_t, khval_t, 1, kh_int64_hash_func, kh_int64_hash_equal)
-
-typedef const char *kh_cstr_t;
-#define KHASH_SET_INIT_STR(name)                                        \
-    KHASH_INIT(name, kh_cstr_t, char, 0, kh_str_hash_func, kh_str_hash_equal)
-
-#define KHASH_MAP_INIT_STR(name, khval_t)                               \
-    KHASH_INIT(name, kh_cstr_t, khval_t, 1, kh_str_hash_func, kh_str_hash_equal)
 
 #endif /* __AC_KHASH_H */

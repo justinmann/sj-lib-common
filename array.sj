@@ -1,58 +1,78 @@
+package array {
+    create!t(size : 'i32, item : 't) {
+        v := nullptr
+        --c--
+        sjs_array* arr = createarray(sizeof(#type(t)), size);
+        #type(t)* p = (#type(t)*)arr->data;
+        for (int i = 0; i < size; i++) {
+            #retain(t, p[i], item);
+        }
+        arr->count = size;  
+        v = arr;
+        --c--  
+        array!t(v)
+    }
+}
+
+--cstruct--
+struct {
+    int refcount;
+    int size;
+    int count;
+    char data[0];
+} g_empty = { 1, 0, 0 };
+--cstruct--
+
 array!t (
-    dataSize : 0
-    data : nullptr
-    isGlobal : false
-    count : 0
+    v := nullptr
+
+    getCount() {
+        --c--
+        #return(i32, ((sjs_array*)_parent->v)->count);
+        --c--        
+    }
+
+    getTotalCount()'i32 {
+        --c--
+        #return(i32, ((sjs_array*)_parent->v)->size);
+        --c--
+    }
 
     getAt(index : 'i32)'t {
         --c--
-        if (index >= _parent->count || index < 0) {
+        sjs_array* arr = (sjs_array*)_parent->v;
+        if (index >= arr->count || index < 0) {
             halt("getAt: out of bounds\n");
         }
-
-        #type(t)* p = (#type(t)*)_parent->data;
+        #type(t)* p = (#type(t)*)arr->data;
         #return(t, p[index]);       
         --c--
     }
     
-    init(item : 't)'array!t {
-        --c--
-        if (0 != _parent->count) {
-            halt("init: can only initialize a completely uninitialized list\n");     
-        }
-
-        #type(t)* p = (#type(t)*)_parent->data;
-        int count = _parent->datasize;
-        for (int i = 0; i < count; i++) {
-            #retain(t, p[i], item);
-        }
-        _parent->count = _parent->datasize;  
-        --c--  
-        parent
-    }
-
     initAt(index : 'i32, item : 't)'void {
         --c--
-        if (index != _parent->count) {
+        sjs_array* arr = (sjs_array*)_parent->v;
+        if (index != arr->count) {
             halt("initAt: can only initialize last element\n");     
         }
-        if (index >= _parent->datasize || index < 0) {
-            halt("initAt: out of bounds %d:%d\n", index, _parent->datasize);
+        if (index >= arr->size || index < 0) {
+            halt("initAt: out of bounds %d:%d\n", index, arr->size);
         }
 
-        #type(t)* p = (#type(t)*)_parent->data;
+        #type(t)* p = (#type(t)*)arr->data;
         #retain(t, p[index], item);
-        _parent->count = index + 1;
+        arr->count = index + 1;
         --c--
     }
 
     setAt(index : 'i32, item : 't)'void {
         --c--
-        if (index >= _parent->count || index < 0) {
-            halt("setAt: out of bounds %d:%d\n", index, _parent->count);
+        sjs_array* arr = (sjs_array*)_parent->v;
+        if (index >= arr->count || index < 0) {
+            halt("setAt: out of bounds %d:%d\n", index, arr->count);
         }
 
-        #type(t)* p = (#type(t)*)_parent->data;
+        #type(t)* p = (#type(t)*)arr->data;
         #release(t, p[index]);
         #retain(t, p[index], item);
         --c--
@@ -61,8 +81,9 @@ array!t (
     find(item : 't)'i32 {
         match = -1
         --c--   
-        #type(t)* p = (#type(t)*)_parent->data;
-        for (int index = 0; index < _parent->count; i++) {
+        sjs_array* arr = (sjs_array*)_parent->v;
+        #type(t)* p = (#type(t)*)arr->data;
+        for (int index = 0; index < arr->count; i++) {
             if (p[index] == item) {
                 match = index;
             }
@@ -71,8 +92,21 @@ array!t (
         match
     }
 
+    findcb(cb : '(:t)bool)'t? {
+        i := 0
+        while i < getCount() && !cb(getAt(i)) {
+            i++
+        }
+
+        if i < getCount() {
+            valid(getAt(i))
+        } else {
+            empty't
+        }
+    }
+
     each(cb : '(:t)void)'void {
-        for i : 0 to count {
+        for i : 0 to getCount() {
             cb(getAt(i))
         }
     }
@@ -80,44 +114,44 @@ array!t (
     map!new_t(cb : '(:t)new_t)'array!new_t {
         newData := nullptr
         --c--
-        newdata = (int*)malloc(_parent->count * sizeof(#type(new_t)) + sizeof(int)) + 1;
-        int* refcount = (int*)newdata - 1;
-        *refcount = 1;
+        sjs_array* arr = (sjs_array*)_parent->v;
+        sjs_array* newArr = createarray(sizeof(#type(new_t)), arr->count);
+        newArr->count = arr->count;
+        newdata = (void*)newArr;
         --c--
-        for i : 0 to count {
+        for i : 0 to getCount() {
             newItem : cb(getAt(i))
             --c--
-            #type(new_t)* p = (#type(new_t)*)newdata;
+            #type(new_t)* p = (#type(new_t)*)newArr->data;
             #retain(new_t, p[i], newitem);
             --c--
         }       
-        array!new_t(data: newData, dataSize: count, count: count)
+        array!new_t(newData)
     }
 
     filter(cb : '(:t)bool)'array!t {
         newData := nullptr
-        newCount := 0
         --c--
-        newdata = (int*)malloc(_parent->count * sizeof(#type(t)) + sizeof(int)) + 1;
-        int* refcount = (int*)newdata - 1;
-        *refcount = 1;
+        sjs_array* arr = (sjs_array*)_parent->v;
+        sjs_array* newArr = createarray(sizeof(#type(t)), arr->count);
+        newdata = (void*)newArr;
         --c--
-        for i : 0 to count {
+        for i : 0 to getCount() {
             item : getAt(i)
             if (cb(item)) {
                 --c--
-                #type(t)* p = (#type(t)*)newdata;
-                #retain(t, p[newcount], item);
+                #type(t)* p = (#type(t)*)newArr->data;
+                #retain(t, p[newArr->count], item);
+                newArr->count++;
                 --c--
-                newCount++
             }
         }       
-        array!t(data: newData, dataSize: count, count: newCount)
+        array!t(newData)
     }
 
     foldl!result(initial : 'result, cb : '(:result, :t)result)'result {
         r := initial
-        for i : 0 to count {
+        for i : 0 to getCount() {
             r = cb(r, getAt(i))
         }           
         r
@@ -125,43 +159,46 @@ array!t (
 
     foldr!result(initial : 'result, cb : '(:result, :t)result)'result {
         r := initial
-        for i : 0 toReverse count {
+        for i : 0 toReverse getCount() {
             r = cb(r, getAt(i))
         }           
         r
     }
 
-    grow(newSize :' i32)'array!t {
-        newData := nullptr
+    clone(offset : 'i32, count : 'i32, newSize :' i32)'array!t {
+        newv := nullptr
         --c--
-        if (_parent->datasize != newsize) {
-            if (newsize < _parent->datasize) {
-                halt("grow: new size smaller than old _parent->datasize %d:%d\n", newsize, _parent->datasize);
-            }
-            
-            newdata = (int*)(malloc(sizeof(int) + newsize * sizeof(#type(t)))) + 1;
-            int* refcount = (int*)newdata - 1;
-            *refcount = 1;
+        sjs_array* arr = (sjs_array*)_parent->v;
+        if (offset + count > arr->count) {
+            halt("grow: offset %d count %d out of bounds %d\n", offset, count, arr->count);
+        }
 
-            if (!_parent->data) {
-                halt("grow: out of memory\n");
-            }
+        if (count > arr->count - offset) {
+            halt("grow: new count larger than old count %d:%d\n", count, arr->count - offset);
+        }
+        
+        sjs_array* newArr = createarray(sizeof(#type(t)), newsize);
+        if (!newArr) {
+            halt("grow: out of memory\n");
+        }
 
-            #type(t)* p = (#type(t)*)_parent->data;
-            #type(t)* newp = (#type(t)*)newdata;
+        newv = newArr;
+        #type(t)* p = (#type(t)*)arr->data + offset;
+        #type(t)* newp = (#type(t)*)newArr->data;
 
-            int count = _parent->count;
+        newArr->refcount = 1;
+        newArr->size = newsize;
+        newArr->count = count;
 
 ##if #isValue(t)
-            memcpy(newp, p, sizeof(#type(t)) * count);
+        memcpy(newp, p, sizeof(#type(t)) * count);
 ##else
-            for (int i = 0; i < count; i++) {
-                #retain(t, newp[i], p[i]);
-            }
-##endif
+        for (int i = 0; i < count; i++) {
+            #retain(t, newp[i], p[i]);
         }
+##endif
         --c--
-        array!t(data: newData, dataSize: newSize, count: count)
+        array!t(newv)
     } 
 
     _quickSort(left : 'i32, right : 'i32) {
@@ -202,7 +239,7 @@ array!t (
         pivot : getAt((left + right) / 2)
         while i <= j {
             shouldContinue := true
-            while i < count && shouldContinue {
+            while i < getCount() && shouldContinue {
                 shouldContinue = cb(getAt(i), pivot) < 0
                 if shouldContinue {
                     i++
@@ -235,20 +272,20 @@ array!t (
     }
 
     sort()'void {
-        if count > 1 {
-            _quickSort(0, count - 1)
+        if getCount() > 1 {
+            _quickSort(0, getCount() - 1)
         }
     }
 
     sortcb(cb : '(:t, :t)i32)'void {
-        if count > 1 {
-            _quickSortCallback(0, count - 1, cb)
+        if getCount() > 1 {
+            _quickSortCallback(0, getCount() - 1, cb)
         }
     }
 
     reverse() {
-        for i : 0 to count / 2 {
-            j : count - i - 1
+        for i : 0 to getCount() / 2 {
+            j : getCount() - i - 1
             tmp : getAt(i)
             setAt(i, getAt(j))
             setAt(j, tmp)
@@ -257,91 +294,97 @@ array!t (
 
     asString(sep : ", ") {
         result := ""
-        for i : 0 to count {
+        for i : 0 to getCount() {
             if i != 0 {
                 result = result + sep
             }
-            result = result + getAt(i)?.asString()?:""
+            result = result + getAt(i)?.asString()??
         }
         result
     }
 
+    asHash![key, value](cb : '(:t)tuple2![key,value]) {
+        hash : hash![key, value]()
+        for i : 0 to getCount() {
+            tuple : cb(getAt(i))
+            hash[tuple.item1] = tuple.item2
+        }        
+        hash
+    }
+
     isEqual(test :' array!t)'bool {
         --c--
-        if (_parent->count != test->count) {
-            *_return = false;
+        sjs_array* arr1 = (sjs_array*)_parent->v;
+        sjs_array* arr2 = (sjs_array*)test->v;
+        if (arr1->count != arr2->count) {
+            #return(bool, false);      
         }
-
-        bool result = memcmp(_parent->data, test->data, _parent->count * sizeof(#type(t))) == 0;
+        bool result = memcmp(arr1->data, arr2->data, arr1->count * sizeof(#type(t))) == 0;
         #return(bool, result);      
         --c--
     }
 
     isGreater(test :' array!t)'bool {
         --c--
-        bool result = memcmp(_parent->data, test->data, (_parent->count < test->count ? _parent->count : test->count) * sizeof(#type(t))) > 0;      
+        sjs_array* arr1 = (sjs_array*)_parent->v;
+        sjs_array* arr2 = (sjs_array*)test->v;
+        bool result = memcmp(arr1->data, arr2->data, (arr1->count < arr2->count ? arr1->count : arr2->count) * sizeof(#type(t))) > 0;      
         #return(bool, result);      
         --c--
     }
 
     isGreaterOrEqual(test :' array!t)'bool {
         --c--
-        bool result = memcmp(_parent->data, test->data, (_parent->count < test->count ? _parent->count : test->count) * sizeof(#type(t))) >= 0;     
+        sjs_array* arr1 = (sjs_array*)_parent->v;
+        sjs_array* arr2 = (sjs_array*)test->v;
+        bool result = memcmp(arr1->data, arr2->data, (arr1->count < arr2->count ? arr1->count : arr2->count) * sizeof(#type(t))) >= 0;     
         #return(bool, result);      
         --c--
     }
 
     isLess(test :' array!t)'bool {
         --c--
-        bool result = memcmp(_parent->data, test->data, (_parent->count < test->count ? _parent->count : test->count) * sizeof(#type(t))) < 0;      
+        sjs_array* arr1 = (sjs_array*)_parent->v;
+        sjs_array* arr2 = (sjs_array*)test->v;
+        bool result = memcmp(arr1->data, arr2->data, (arr1->count < arr2->count ? arr1->count : arr2->count) * sizeof(#type(t))) < 0;      
         #return(bool, result);      
         --c--
     }
 
     isLessOrEqual(test :' array!t)'bool {
         --c--
-        bool result = memcmp(_parent->data, test->data, (_parent->count < test->count ? _parent->count : test->count) * sizeof(#type(t))) <= 0;     
+        sjs_array* arr1 = (sjs_array*)_parent->v;
+        sjs_array* arr2 = (sjs_array*)test->v;
+        bool result = memcmp(arr1->data, arr2->data, (arr1->count < arr2->count ? arr1->count : arr2->count) * sizeof(#type(t))) <= 0;     
         #return(bool, result);      
         --c--
     }
 ) {
     --c--
-    if (_this->datasize < 0) {
-        halt("size is less than zero");
+    if (_this->v == 0) {
+        _this->v = &g_empty;
     }
-
-    if (!_this->data) {
-        _this->data = (int*)malloc(_this->datasize * sizeof(#type(t)) + sizeof(int)) + 1;
-        int* refcount = (int*)_this->data - 1;
-        *refcount = 1;
-        if (!_this->data) {
-            halt("grow: out of memory\n");
-        }
-    }
+    sjs_array* arr = (sjs_array*)_this->v;
+    arr->refcount++;
     --c--
     this
 } copy {
     --c--
-    _this->data = _from->data;
-    if (!_this->isglobal && _this->data) {
-        int* refcount = (int*)_this->data - 1;
-        *refcount = *refcount + 1;
-    }
+    sjs_array* arr = (sjs_array*)_this->v;
+    arr->refcount++;
     --c--
 } destroy {
     --c--
-    if (!_this->isglobal && _this->data) {
-        int* refcount = (int*)_this->data - 1;
-        *refcount = *refcount - 1;
-        if (*refcount == 0) {
+    sjs_array* arr = (sjs_array*)_this->v;
+    arr->refcount--;
+    if (arr->refcount == 0) {
 ##if !#isValue(t) && !#isStack(t)
-            #type(t)* p = (#type(t)*)_this->data;
-            for (int i = 0; i < _this->count; i++) {
-                #release(t, p[i]);
-            }
-##endif
-            free(refcount);
+        #type(t)* p = (#type(t)*)arr->data;
+        for (int i = 0; i < arr->count; i++) {
+            #release(t, p[i]);
         }
+##endif
+        free(arr);
     }
     --c--
 }

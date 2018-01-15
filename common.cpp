@@ -1,3 +1,17 @@
+sjs_array* createarray(int elementSize, int size) {
+    sjs_array* arr = (sjs_array*)malloc(sizeof(sjs_array) + elementSize * size);
+    arr->refcount = 0;
+    arr->count = 0;
+    arr->size = size;
+    return arr;
+}
+
+sjs_array* reallocarray(sjs_array* arr, int elementSize, int size) {
+    sjs_array* arr2 = (sjs_array*)realloc(arr, sizeof(sjs_array) + elementSize * size);
+    arr2->size = size;
+    return arr2;
+}
+
 void halt(const char * format, ...) {
     va_list args;
     va_start(args, format);

@@ -2,40 +2,48 @@ package console {
     write(data : 'string)'void {
         data.nullTerminate()
         --c--
-        printf("%s", (char*)data->data.data);
+        printf("%s", string_char(data));
         --c--
     }
 
     writeLine(data : 'string)'void {
         data.nullTerminate()
         --c--
-        printf("%s\n", (char*)data->data.data);
+        printf("%s\n", string_char(data));
         --c--
     }
 
     readLine()'string { 
         data := nullptr
-        dataSize := 1024
+        count := 0
         --c--
-        char* str = (char*)malloc(datasize);
+        sjs_array* str = createarray(1, 1024);
         int index = 0;
         char ch = ' ';
         do {
             ch = getchar();
             if (ch != '\n') {
-                str[index] = ch;
+                str->data[index] = ch;
                 index++;
-                if (index >= datasize) {
-                    datasize *= 2;
-                    str = (char*)realloc(str, datasize);
+                if (index >= str->size) {
+                    str = reallocarray(str, 1, str->size * 2);
                 }
             }
         } while (ch != '\n');
 
         data = (void*)str;
-        datasize = index;
+        count = index;
         --c--
 
-        string(count := dataSize, data := array!char(dataSize := dataSize, data := data, count := dataSize))
+        string(count : count, data : array!char(data))
     }
 }
+
+consoleWriter #writer(
+    write(s : 'string) {
+        console.write(s)
+        void
+    }
+
+    reset() { void }
+) { this }
