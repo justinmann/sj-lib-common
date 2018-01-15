@@ -131,7 +131,7 @@ string(
 
     nullTerminate() {
         if !_isNullTerminated {
-            if offset + count + 1 > data.totalCount {
+            if offset + count + 1 > data.totalCount || offset + count != data.count {
                 data = data.clone(offset, count, count + 1)
                 offset = 0
             }
