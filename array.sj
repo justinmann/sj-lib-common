@@ -186,7 +186,6 @@ array!t (
         #type(t)* p = (#type(t)*)arr->data + offset;
         #type(t)* newp = (#type(t)*)newArr->data;
 
-        newArr->refcount = 1;
         newArr->size = newsize;
         newArr->count = count;
 
