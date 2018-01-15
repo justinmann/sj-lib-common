@@ -87,3 +87,16 @@ string(
     }
 ) { this }
 
+stringWriter #writer(
+    text := ""
+
+    reset() {
+        text = ""
+        void
+    }
+
+    write(s : 'string) {
+        text += s
+        void
+    }
+) { this }
