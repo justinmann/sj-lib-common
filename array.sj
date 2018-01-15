@@ -201,7 +201,7 @@ array!t (
         array!t(newv)
     } 
 
-    _quickSort(left : 'i32, right : 'i32) {
+    _quickSort(left : 'i32, right : 'i32)'void {
         i := left
         j := right
 
@@ -232,7 +232,7 @@ array!t (
         }
     }
 
-    _quickSortCallback(left : 'i32, right : 'i32, cb : '(:t, :t)i32) {
+    _quickSortCallback(left : 'i32, right : 'i32, cb : '(:t, :t)i32)'void {
         i := left
         j := right
 
